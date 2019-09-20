@@ -1,8 +1,9 @@
 function plot_robot_position(in)
-
+    
+    clock = in(1); ended = in(2);
     l1 = in(3); l2 = in(4);
-    clock = in(5); sw = in(9);
-    plot_mode = in(12); q1i = in(7); q2i = in(8); ended = in(13);
+    plot_mode = in(5);
+    sw = in(11);
     
     % If plot_mode is zero, don't plot.
     if not (plot_mode)
@@ -11,20 +12,22 @@ function plot_robot_position(in)
     elseif (not (ishandle(1)))
         % If must plot but figure has been deleted.
         if not (ended)
+            
             if (not (clock == 0)) % if the figure wasn't deleted
                                   % between preparation and simulation
                 warning('It is recommended not to close the figure during the simulation.');
             end
             
             % Re-open figure.
-            open_figure(sw,l1,l2);
+            open_figure(sw, l1, l2);
         end
     end
 
     % Store inputs in meaningfully named variables.
-    x = in(1); y = in(2);
-    starting_time = in(6);
-    q1 = in(10); q2 = in(11);
+    q1 = in(6); q2 = in(7);
+    q1i = in(8); q2i = in(9);
+    starting_time = in(10);
+    x = in(12); y = in(13);
     
     persistent xprev;
     persistent yprev;
