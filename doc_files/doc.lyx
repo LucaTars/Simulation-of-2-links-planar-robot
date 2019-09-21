@@ -355,8 +355,8 @@ n.
 \begin_layout Enumerate
 The simulator can be further developed, for example by creating a complete
  user interface, detailing the actuator's state (by attaching a frame of
- reference to it), associating a SimScape model to the Simulink scheme and
- many other things.
+ reference to it), associating a SimScape model to the Simulink scheme,
+ considering situations with noise, and many other things.
  Because of time constraints, it was decided to omit these features for
  now.
 \end_layout
@@ -3308,11 +3308,6 @@ GOTO
  This way, if one or moreof those parameters get their name changed in a
  future development of the software, the model has to be changed in one
  place only.
- Observe that 
-\family typewriter
-vmax
-\family default
- is multiplied by a scaling gain, different from 1 only in modes 2 and 3.
 \end_layout
 
 \begin_layout Standard
@@ -4869,7 +4864,7 @@ clear plot_robot_position
 \family typewriter
 start_simulation
 \family default
- returns (and, in case of error exit, in 
+ returns (and, to cover the case of error exit, in 
 \family typewriter
 exit_with_error
 \family default

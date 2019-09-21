@@ -81,12 +81,6 @@ function [sim_time, q1out, q2out, xout, yout, deltax, deltay] =...
             end
         end
         
-        if (sw == 1)
-            h_step_if_not_mode_1 = 0.01;
-        else
-            h_step_if_not_mode_1 = h_step;
-        end
-        
         % Run simulation.
         SO = sim('schema','StartTime','current_tmin','StopTime',...
             'current_tmax','SaveState','on','SaveOutput','on',...
