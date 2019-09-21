@@ -5,9 +5,9 @@
 
 function [Jinv] = invert_J (in)
     
-    xstar = in(1); ystar = in(2); l1 = in(3); l2 = in(4); q1 = in(5);
-    q2 = in(6); xstardot = in(7); ystardot = in(8); vmax = in(9);
-    starting_time = in(10); sw = in(11); ended = in(12);
+    ended = in(1); l1 = in(2); l2 = in(3); q1 = in(4); q2 = in(5);
+    starting_time = in(6); sw = in(7); vmax = in(8); xstar = in(9);
+    ystar = in(10); xstardot = in(11); ystardot = in(12);
     
     mod = sqrt(xstar^2 + ystar^2);
         
