@@ -3239,7 +3239,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename simulink1assign.png
-	scale 55
+	scale 60
 
 \end_inset
 
@@ -3982,148 +3982,6 @@ The saturation allows the simulation not to crash on the user when the latter
 \end_layout
 
 \begin_layout Section
-qdot computation area
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement h
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename simulink4qdot.png
-	scale 50
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-qdot computation area.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-The 
-\family typewriter
-qdot_computation
-\family default
- subsystem faithfully implements the robot control logic seen in the introductio
-n.
- Internally, it has three areas: the Inversion of J area, the K
-\begin_inset Formula $\times$
-\end_inset
-
-Deltax computation area and the Final computation area.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement h
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename simulink4qdot_sub.png
-	scale 45
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-qdot_computation subsystem
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-As said, the calculations are those explained in the introduction.
-\end_layout
-
-\begin_layout Subsubsection
-Interpreted MATLAB function invert_J
-\end_layout
-
-\begin_layout Standard
-If inputs 
-\family typewriter
-xstar
-\family default
-, 
-\family typewriter
-ystar
-\family default
-, 
-\family typewriter
-xstardot
-\family default
- and 
-\family typewriter
-ystardot
-\family default
- specify a valid signal (that is, not exceeding maximum speed 
-\family typewriter
-vmax
-\family default
- and being reachable), the output is the inverse of the Jacobian of the
- system.
- Otherwise, an exception is thrown; it can be of two types:
-\end_layout
-
-\begin_layout Enumerate
-id = 
-\family typewriter
-caller:MAX_SPEED_EXCEEDED_ERROR
-\family default
-, error text = 
-\family typewriter
-Maximum speed exceeded.
-\end_layout
-
-\begin_layout Enumerate
-id = 
-\family typewriter
-caller:POINT_NOT_REACHABLE_ERROR
-\family default
-, error text = 
-\family typewriter
-Point is not reachable.
-\end_layout
-
-\begin_layout Section
 Arm area
 \end_layout
 
@@ -4137,7 +3995,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename simulink5arm.png
+	filename simulink4arm.png
 	scale 60
 
 \end_inset
@@ -4185,7 +4043,6 @@ Arm subsystem
 
 \begin_layout Standard
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status open
@@ -4193,8 +4050,8 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename simulink5armarm.png
-	scale 50
+	filename fig6.png
+	scale 60
 
 \end_inset
 
@@ -4205,7 +4062,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Arm subsystem.
+ARM subsystem.
 \end_layout
 
 \end_inset
@@ -4213,6 +4070,47 @@ Arm subsystem.
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Actuator position area
+\end_layout
+
+\begin_layout Standard
+This area outputs the components of the actuator's position, here called
+ 
+\family typewriter
+X
+\family default
+ and 
+\family typewriter
+Y
+\family default
+, after being computed from the angles 
+\family typewriter
+q1
+\family default
+ and 
+\family typewriter
+q2
+\family default
+ according to the relationships
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $x=l_{1}\mathrm{cos}q_{1}+l_{2}\mathrm{cos}(q_{1}+q_{2})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $y=l_{1}\mathrm{sin}q_{1}+l_{2}\mathrm{sin}(q_{1}+q_{2})$
 \end_inset
 
 
@@ -4241,8 +4139,7 @@ q1i
 \family typewriter
 q2i
 \family default
-, computed during the simulation in the Reference signal acquisition area,
- are chosen.
+, computed during the simulation in the Signal acquisition area, are chosen.
  Otherwise, the signals 
 \family typewriter
 q1iws
@@ -4275,7 +4172,15 @@ q1
 \family typewriter
 q2
 \family default
-, which are then returned as third and fourth outputs.
+, which are then returned as third and fourth outputs, with names 
+\family typewriter
+Q1
+\family default
+ and 
+\family typewriter
+Q2
+\family default
+.
 \end_layout
 
 \begin_layout Standard
@@ -4312,49 +4217,6 @@ q2_init
 read_user_input
 \family default
  function (see 17.1).
-\end_layout
-
-\begin_layout Subsubsection
-Actuator position area
-\end_layout
-
-\begin_layout Standard
-This area outputs the components of the actuator's position, 
-\family typewriter
-x
-\family default
- and 
-\family typewriter
-y
-\family default
-, after being computed from the angles 
-\family typewriter
-q1
-\family default
- and 
-\family typewriter
-q2
-\family default
- according to the relationships
-\end_layout
-
-\begin_layout Standard
-\align center
-\begin_inset Formula $x=l_{1}\mathrm{cos}q_{1}+l_{2}\mathrm{cos}(q_{1}+q_{2})$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\align center
-\begin_inset Formula $y=l_{1}\mathrm{sin}q_{1}+l_{2}\mathrm{sin}(q_{1}+q_{2})$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 \begin_inset VSpace defskip
 \end_inset
 
@@ -4378,7 +4240,7 @@ q2
 \end_layout
 
 \begin_layout Section
-Time handling area
+Achievement of initial position
 \end_layout
 
 \begin_layout Standard
@@ -4391,8 +4253,8 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename simulink6time_handling.png
-	scale 55
+	filename fig3.png
+	scale 70
 
 \end_inset
 
@@ -4417,72 +4279,7 @@ Achievement of initial position area.
 \end_layout
 
 \begin_layout Subsection
-MATLAB interpreted function set_starting_time
-\end_layout
-
-\begin_layout Subsubsection
-Definition
-\end_layout
-
-\begin_layout Standard
-
-\family typewriter
-function starting_time = set_starting_time(in)
-\end_layout
-
-\begin_layout Subsubsection
-Output parameters
-\end_layout
-
-\begin_layout Enumerate
-
-\family typewriter
-starting_time
-\family default
- = 
-\family typewriter
-tmin
-\family default
- in 
-\family typewriter
-OFFLINE
-\family default
- modes.
- In 
-\family typewriter
-ONLINE
-\family default
- mode, 
-\family typewriter
-starting_time
-\family default
- = -1 if the initial condition have yet to be reached; otherwise, 
-\family typewriter
-starting_time
-\family default
- = the instant in which they have been reached.
- In 
-\family typewriter
-ONLINE
-\family default
- mode, the value of 
-\family typewriter
-starting_time
-\family default
- is used in the other parts of the model to determine if the initial condition
- have been reached.
-\end_layout
-
-\begin_layout Subsubsection
-Other outputs
-\end_layout
-
-\begin_layout Subsubsection
-Throwable custom exceptions
-\end_layout
-
-\begin_layout Subsection
-Interpreted MATLAB function store_real_time
+Interpreted MATLAB function store_toc
 \end_layout
 
 \begin_layout Subsubsection
@@ -4555,7 +4352,7 @@ OFFLINE
 \family typewriter
 set_starting_times
 \family default
- runs 
+ (see 13.1.1) runs 
 \family typewriter
 tic
 \family default
@@ -4591,7 +4388,69 @@ toc
  can't be executed until then, and 0 will be returned instead.
 \end_layout
 
+\begin_layout Subsection
+MATLAB interpreted function set_starting_time
+\end_layout
+
+\begin_layout Subsubsection
+Definition
+\end_layout
+
 \begin_layout Standard
+
+\family typewriter
+function starting_time = set_starting_time(in)
+\end_layout
+
+\begin_layout Subsubsection
+Output parameters
+\end_layout
+
+\begin_layout Enumerate
+
+\family typewriter
+starting_time
+\family default
+ = 
+\family typewriter
+tmin
+\family default
+ in 
+\family typewriter
+OFFLINE
+\family default
+ modes.
+ In 
+\family typewriter
+ONLINE
+\family default
+ mode, 
+\family typewriter
+starting_time
+\family default
+ = -1 if the initial condition have yet to be reached; otherwise, 
+\family typewriter
+starting_time
+\family default
+ = the instant in which they have been reached.
+ In 
+\family typewriter
+ONLINE
+\family default
+ mode, the value of 
+\family typewriter
+starting_time
+\family default
+ is used in the other parts of the model to determine if the initial condition
+ have been reached.
+\end_layout
+
+\begin_layout Subsubsection
+Other outputs
+\end_layout
+
+\begin_layout Subsubsection
+Throwable custom exceptions
 \begin_inset VSpace defskip
 \end_inset
 
@@ -4629,8 +4488,8 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename simulink7plot.png
-	scale 50
+	filename fig4.png
+	scale 60
 
 \end_inset
 
@@ -4749,10 +4608,6 @@ Throwable custom exceptions
 \end_layout
 
 \begin_layout Subsubsection
-Notes
-\end_layout
-
-\begin_layout Paragraph
 Note 1
 \end_layout
 
@@ -4824,7 +4679,7 @@ plot_mode = PLOT_WITH_LINKS
  the two links are plotted through a single instruction.
 \end_layout
 
-\begin_layout Paragraph
+\begin_layout Subsubsection
 Note 2
 \end_layout
 
@@ -4894,6 +4749,201 @@ exit_with_error
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+qdot computation area
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig5.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+qdot computation area.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The 
+\family typewriter
+qdot_computation
+\family default
+ subsystem faithfully implements the robot control logic, as seen in the
+ introduction.
+\end_layout
+
+\begin_layout Standard
+In the left zone, the signals provided to the subsystem are selected.
+ Detailing, in the uppermost zone the reference signal (in any case assigned
+ in the Reference signal acquisition area) is selected based on a simple
+ switching on the parameter 
+\family typewriter
+sw
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+In the downmost zone the derivative is selected.
+ If 
+\family typewriter
+sw
+\family default
+ > 0, the n-th element of the workspace cell array 
+\family typewriter
+xstardot
+\family default
+ is trivially chosen.
+ In the other case, it is more complicated.
+\end_layout
+
+\begin_layout Standard
+For now, ignore the delay block.
+ Before 
+\family typewriter
+RESET
+\family default
+ is set to a positive value, i.e.
+ before the user has started drawing, a null derivative is provided (any
+ finite signal would do, as this part is going to be ignored).
+ Roughly after 
+\family typewriter
+RESET
+\family default
+ changes sign, a saturated version of the derivative of the hand(cursor)-drawn
+ reference signal is provided instead.
+\end_layout
+
+\begin_layout Standard
+The saturation allows the simulation not to crash on the user when the latter
+ exceeds the maximum speed of the robot (however, the robot will proceed
+ at its maximum velocity, forcing the user to slow down).
+ Finally, the delay block is necessary because, when the user starts drawing,
+ a jump will happen, i.e.
+ the derivative of the cursor-drawn signal will be very high.
+ We want the robot to start as still, so we provide null derivative for
+ a few more time steps.
+\end_layout
+
+\begin_layout Subsection
+qdot_computation subsystem
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig9.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+qdot_computation subsystem
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As pointed out, this subsystem is a faithful implementation of the control
+ method already described.
+\end_layout
+
+\begin_layout Subsubsection
+Interpreted MATLAB function invert_J
+\end_layout
+
+\begin_layout Standard
+If inputs 
+\family typewriter
+xstar
+\family default
+, 
+\family typewriter
+ystar
+\family default
+, 
+\family typewriter
+xstardot
+\family default
+ and 
+\family typewriter
+ystardot
+\family default
+ specify a valid signal (that is, not exceeding maximum speed 
+\family typewriter
+vmax
+\family default
+ and being reachable), the output is the inverse of the Jacobian of the
+ system.
+ Otherwise, an exception is thrown, which can be of two types:
+\end_layout
+
+\begin_layout Enumerate
+id = 
+\family typewriter
+caller:MAX_SPEED_EXCEEDED_ERROR
+\family default
+, error text = 
+\family typewriter
+Maximum speed exceeded.
+\end_layout
+
+\begin_layout Enumerate
+id = 
+\family typewriter
+caller:POINT_NOT_REACHABLE_ERROR
+\family default
+, error text = 
+\family typewriter
+Point is not reachable.
 \end_layout
 
 \begin_layout Part

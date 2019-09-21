@@ -1147,67 +1147,290 @@ configuration parameters settings will cause Simulink to set as actual
 simulation step the GCD of the \texttt{sim} parameter and a Simulink-generated
 step. This WILL cause confusion, so be careful.
 
-\section{Assignments}
+\section{Initial assignments area}
 
 \begin{figure}[h]
 \begin{centering}
-\includegraphics[scale=0.6]{fig2}
+\includegraphics[scale=0.55]{simulink1assign}
 \par\end{centering}
-\caption{Assignments area.}
+\caption{Initial assignments8 area.}
 \end{figure}
 
-In this area several parameters (\texttt{l1}, \texttt{l2}, \texttt{sw},
-\texttt{vmax}, \texttt{plot\_mode}, \texttt{current\_tmin}) from the
-workspace are assigned to a GOTO block. This way, if one of those
-parameters gets its name changed in a future development of the software,
+In this area several parameters (\texttt{l1}, \texttt{l2}, \texttt{q1ws},
+\texttt{q2ws}, \texttt{clock}, \texttt{plot\_mode}, \texttt{sw}, \texttt{current\_tmin},
+\texttt{vmax} and all the screen parameters) from the workspace are
+assigned to a \texttt{GOTO} block. This way, if one or moreof those
+parameters get their name changed in a future development of the software,
 the model has to be changed in one place only. Observe that \texttt{vmax}
 is multiplied by a scaling gain, different from 1 only in modes 2
 and 3.
 
-Furthermore, a signal \texttt{xy} is defined as the multiplexing of
-the signals \texttt{x} and \texttt{y} (the components of the actuator's
-position). Finally, the lowest assignment in Figure 2 assigns the
-call to \texttt{start\_toc} to the 6th output of the simulation.
+\medskip{}
+\medskip{}
+\medskip{}
+\medskip{}
 
-\subsection{Interpreted MATLAB function store\_toc}
 
-\subsubsection{Definition}
+\section{Reference signal acquisition area}
 
-\texttt{function t = store\_toc (in)}
+\begin{figure}[H]
+\begin{centering}
+\includegraphics[scale=0.65]{simulink2refac}
+\par\end{centering}
+\caption{Reference signal acquisition.}
+\end{figure}
 
-\subsubsection{Output parameters}
-\begin{enumerate}
-\item \texttt{t} = 0 in mode 1 (this output is not significant). In mode
-2, \texttt{t = toc}. In mode 3, \texttt{t = toc} if \texttt{tic} has
-been called (i.e. \texttt{starting\_time} $\ge$ 0, see 14.1), otherwise
-\texttt{t =} 0.
-\end{enumerate}
+The \texttt{ref\_acquisition }subsystem is composed of two areas:
+the Online reference processing area and the Choice of Reference area.
 
-\subsubsection{Other outputs}
+\subsection{Online reference processing area}
 
-\subsubsection{Throwable custom exceptions}
+\begin{figure}[H]
+\begin{centering}
+\includegraphics[scale=0.45]{simulink2refac_online}
+\par\end{centering}
+\caption{\texttt{ref\_acquisition} subsystem.}
+\end{figure}
 
-\subsubsection{Notes}
+In \texttt{ONLINE} mode, this area reads and stores the cursor input
+in the \texttt{GOTO} block \texttt{ref\_by\_hand}, as well as assigning
+a few other variables (see 1.4.1.1).
+
+\subsubsection{MATLAB interpreted function read\_cursor\_input}
+
+\paragraph{Definition}
+
+\noindent \texttt{function out = read\_cursor\_input (in)}.
+
+\paragraph{Output parameters}
+
+\noindent The output signal \texttt{out} is a column array of size
+6. In \texttt{OFFLINE} modes, this function is not used, therefore
+the outputs always have a value of 0. In \texttt{ONLINE} mode, its
+elements are the following (listed from first to last):
 \begin{itemize}
-\item In the \texttt{OFFLINE} modes, \texttt{set\_starting\_times} (see
-13.1.1) runs \texttt{tic} at the first simulation step, so \texttt{store\_toc}
-(which executes after \texttt{set\_starting\_times} as it needs its
-output as input) can execute the \texttt{toc} command always. In \texttt{ONLINE}
-mode, \texttt{tic} is only run by \texttt{set\_starting\_times} at
-the step where initial conditions have been reached, so \texttt{toc}
-can't be executed until then, and 0 will be returned instead.
+\item \texttt{xstar}, \texttt{ystar} = zero vector before the user starts
+drawing; the two components of the reference signal, provided by the
+user through the use of the cursor, afterwards.
+\item \texttt{q1i}, \texttt{q2i} = respectively 0 and 4 (arbitrary values)
+before the user starts drawing; the initial angles associated with
+the reference signal drawn by the user after the user has started
+drawing.
+\item \texttt{RESET} = 0 before the user starts drawing, 1 afterwards. The
+change of value of this variable happens the first time that the mouse
+results clicked and the clicked point is inside the drawing area.
+\item \texttt{ended} = 0 before the simulation has terminated, 1 afterwards.
+The change of value of this variable happens if the mouse is not clicked
+and \texttt{RESET} is equal to 1, i.e. the mouse has been released
+by the user.
 \end{itemize}
+
+\paragraph{Other outputs}
+
+\noindent After the user has started drawing, i.e. when \texttt{RESET
+> 0}, the points provided by the user through the cursor are plotted
+in red on the opened simulation figure.
+
+\paragraph{Custom exceptions}
+
+\noindent An exception of id \texttt{caller:FIRST\_POINT\_NOT\_REACHABLE\_ERROR}
+and error string \texttt{First point of the reference signal is not
+reachable.} can be thrown if the first point plotted by the user is
+outside of the reachability space.
+
+\paragraph{Note}
+
+At implementation time, a convenient way to capture the position of
+the cursor at each instant was seeked. Consider the command \texttt{get(gca,
+'CurrentPoint');}; it returns the cursor's coordinates with respect
+to the current axes, but only returns the last clicked or unclicked
+point, ignoring the points over which the cursor hovered. Oddly enough,
+the command \texttt{get(0, 'PointerLocation');} returns the points
+with respect to the screen coordinates, but at all times, not only
+when the user clicks or unclicks. The second instruction is therefore
+used; however, the obtained point must be converted to the figure/axes
+coordinates, and this is the reason for which the values computed
+by \texttt{compute\_screen\_parameters} are provided as input to \texttt{read\_cursor\_input}.
+The formulas to convert the points were obtained through a simple
+transformation of coordinates.
+
+For instance, consider the x coordinate. Define $L\coloneqq l_{1}+l_{2}$,
+$d_{L}\coloneqq$ \texttt{dist\_left}, $d_{R}\coloneqq$ \texttt{dist\_right},
+$w\coloneqq$\texttt{screen\_width}. To transform the value $x_{s}$
+(relative to screen coordinates) to $x_{a}$ (relative to axes coordinates),
+we need the straight line going through the points ($x_{s}=d_{L}$,
+$x_{a}=-2L$) and ($x_{s}=w-d_{R}$, $x_{a}=2L$), that is, the straight
+line satisfying the equations
+\begin{center}
+$-2L=m_{x}d_{L}+q_{x}$
+\par\end{center}
+
+\begin{center}
+$2L=m_{x}(w-d_{R})+q_{x}$
+\par\end{center}
+
+Solving for $m_{x}$ and $q_{x}$ easily gives $m_{x}=\frac{4L}{w-d_{R}-d_{L}},q_{x}=-2L-\frac{4L}{w-d_{R}-d_{L}}d_{L}$,
+which are the relationships used in the program (rearranged in order
+to avoid multiple computations of $\frac{4L}{w-d_{R}-d_{L}}$). For
+the y coordinate, an analogous procedure (or noticing the simmetry
+of the problem) yields $m_{y}=\frac{4L}{h-d_{D}-d_{U}},q_{y}=-2L-\frac{4L}{h-d_{D}-d_{U}}d_{D}$,
+where $h$ = \texttt{screen\_height}, $d_{D}$ = \texttt{dist\_lower},
+$d_{U}$ = \texttt{dist\_upper}.
+
+\subsection{Choice of reference area}
+
+\begin{figure}[H]
+\begin{centering}
+\includegraphics[scale=0.5]{simulink2refac_choice}
+\par\end{centering}
+\caption{Choice of reference area.}
+\end{figure}
+
+In \texttt{ONLINE} mode, this area assigns the \texttt{ref\_by\_hand
+}signal (the cursor input) to \texttt{xstar}; in \texttt{OFFLINE}
+modes, the \texttt{n}-th cell of \texttt{xstar} (workspace variable)
+is assigned instead.
+
+\medskip{}
 \medskip{}
 \medskip{}
 \medskip{}
 \medskip{}
 
 
-\section{Achievement of initial position}
+\section{xstardot computation area}
+
+\begin{figure}[H]
+\begin{centering}
+\includegraphics[scale=0.6]{simulink3xstardot}
+\par\end{centering}
+\caption{xstardot computation area.}
+\end{figure}
+This area selects the derivative of the reference. If \texttt{sw}
+> 0, the n-th element of the workspace cell array \texttt{xstardot}
+is trivially chosen. In the other case, it is more complicated.
+
+For now, ignore the delay block. Before \texttt{RESET} is set to a
+positive value, i.e. before the user has started drawing, a null derivative
+is provided (any finite signal would do, as this part is going to
+be ignored). Roughly after \texttt{RESET} changes sign, a saturated
+version of the derivative of the hand(cursor)-drawn reference signal
+is provided instead.
+
+The saturation allows the simulation not to crash on the user when
+the latter exceeds the maximum speed of the robot (however, the robot
+will proceed at its maximum velocity, forcing the user to slow down).
+Finally, the delay block is necessary because, when the user starts
+drawing, a jump will happen, i.e. the derivative of the cursor-drawn
+signal will be very high. We want the robot to start as still, so
+we provide null derivative for a few more time steps.
+
+\section{qdot computation area}
 
 \begin{figure}[h]
 \begin{centering}
-\includegraphics[scale=0.7]{fig3}
+\includegraphics[scale=0.5]{simulink4qdot}
+\par\end{centering}
+\caption{qdot computation area.}
+\end{figure}
+
+The \texttt{qdot\_computation} subsystem faithfully implements the
+robot control logic seen in the introduction. Internally, it has three
+areas: the Inversion of J area, the K$\times$Deltax computation area
+and the Final computation area.
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[scale=0.45]{simulink4qdot_sub}
+\par\end{centering}
+\caption{qdot\_computation subsystem}
+\end{figure}
+
+As said, the calculations are those explained in the introduction.
+
+\subsubsection{Interpreted MATLAB function invert\_J}
+
+If inputs \texttt{xstar}, \texttt{ystar}, \texttt{xstardot} and \texttt{ystardot}
+specify a valid signal (that is, not exceeding maximum speed \texttt{vmax}
+and being reachable), the output is the inverse of the Jacobian of
+the system. Otherwise, an exception is thrown; it can be of two types:
+\begin{enumerate}
+\item id = \texttt{caller:MAX\_SPEED\_EXCEEDED\_ERROR}, error text = \texttt{Maximum
+speed exceeded.}
+\item id = \texttt{caller:POINT\_NOT\_REACHABLE\_ERROR}, error text = \texttt{Point
+is not reachable.}
+\end{enumerate}
+
+\section{Arm area}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[scale=0.6]{simulink5arm}
+\par\end{centering}
+\caption{Arm area.}
+\end{figure}
+
+The Arm subsystem uses \texttt{qdot}, computed in the qdot computation
+area, to calculate the actuator's position (multiplexed into \texttt{xy})
+and the associated angles (multiplexed into \texttt{q}).
+
+\subsection{Arm subsystem}
+
+\begin{figure}[H]
+\begin{centering}
+\includegraphics[scale=0.5]{simulink5armarm}
+\par\end{centering}
+\caption{Arm subsystem.}
+\end{figure}
+
+
+\subsubsection{Initial conditions areas}
+
+The two leftmost areas select the correct initial angles. If \texttt{sw}
+> 0, i.e. the simulation is in an \texttt{OFFLINE} mode, the signals
+\texttt{q1i} and \texttt{q2i}, computed during the simulation in the
+Reference signal acquisition area, are chosen. Otherwise, the signals
+\texttt{q1iws} and \texttt{q2iws}, computed before the simulation
+in the workspace, are chosen.
+
+\subsubsection{Angles computation}
+
+The remaining areas perform the integration of the derivatives of
+\texttt{q1} and \texttt{q2}, in order to obtain \texttt{q1} and \texttt{q2},
+which are then returned as third and fourth outputs.
+
+The integrators reset to the initial condition signals \texttt{q1\_init}
+and \texttt{q2\_init} when the signal \texttt{RESET} changes sign;
+in the \texttt{OFFLINE} modes this never happens, while in the \texttt{ONLINE}
+mode this happens after the user has started drawing, and \texttt{q1\_init},
+\texttt{q2\_init} have been assigned to the needed initial angles
+by the \texttt{read\_user\_input} function (see 17.1).
+
+\subsubsection{Actuator position area}
+
+This area outputs the components of the actuator's position, \texttt{x}
+and \texttt{y}, after being computed from the angles \texttt{q1} and
+\texttt{q2} according to the relationships
+\begin{center}
+$x=l_{1}\mathrm{cos}q_{1}+l_{2}\mathrm{cos}(q_{1}+q_{2})$
+\par\end{center}
+
+\begin{center}
+$y=l_{1}\mathrm{sin}q_{1}+l_{2}\mathrm{sin}(q_{1}+q_{2})$
+\par\end{center}
+
+\medskip{}
+\medskip{}
+\medskip{}
+\medskip{}
+\medskip{}
+
+
+\section{Time handling area}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[scale=0.55]{simulink6time_handling}
 \par\end{centering}
 \caption{Achievement of initial position area.}
 \end{figure}
@@ -1231,18 +1454,48 @@ of the model to determine if the initial condition have been reached.
 
 \subsubsection{Other outputs}
 
-\subsubsection{Throwable custom exceptions\medskip{}
+\subsubsection{Throwable custom exceptions}
+
+\subsection{Interpreted MATLAB function store\_real\_time}
+
+\subsubsection{Definition}
+
+\texttt{function t = store\_toc (in)}
+
+\subsubsection{Output parameters}
+\begin{enumerate}
+\item \texttt{t} = 0 in mode 1 (this output is not significant). In mode
+2, \texttt{t = toc}. In mode 3, \texttt{t = toc} if \texttt{tic} has
+been called (i.e. \texttt{starting\_time} $\ge$ 0, see 14.1), otherwise
+\texttt{t =} 0.
+\end{enumerate}
+
+\subsubsection{Other outputs}
+
+\subsubsection{Throwable custom exceptions}
+
+\subsubsection{Notes}
+\begin{itemize}
+\item In the \texttt{OFFLINE} modes, \texttt{set\_starting\_times} runs
+\texttt{tic} at the first simulation step, so \texttt{store\_toc}
+(which executes after \texttt{set\_starting\_times} as it needs its
+output as input) can execute the \texttt{toc} command always. In \texttt{ONLINE}
+mode, \texttt{tic} is only run by \texttt{set\_starting\_times} at
+the step where initial conditions have been reached, so \texttt{toc}
+can't be executed until then, and 0 will be returned instead.
+\end{itemize}
 \medskip{}
 \medskip{}
 \medskip{}
 \medskip{}
-}
+\medskip{}
+
 
 \section{Plot}
 \begin{center}
 \begin{figure}[H]
 \begin{centering}
-\includegraphics[scale=0.6]{fig4}
+\includegraphics[scale=0.5]{simulink7plot}
 \par\end{centering}
 \caption{Plot area.}
 \end{figure}
@@ -1276,7 +1529,9 @@ close the figure during the simulation.}
 
 \subsubsection{Throwable custom exceptions}
 
-\subsubsection{Note 1}
+\subsubsection{Notes}
+
+\paragraph{Note 1}
 
 This function, when plotting is enabled, is the bottleneck of the
 whole simulator, and dominates the execution time. For example, with
@@ -1292,7 +1547,7 @@ heavily affects the running time. To avoid even more overhead, in
 the case of \texttt{plot\_mode = PLOT\_WITH\_LINKS} the two links
 are plotted through a single instruction.
 
-\subsubsection{Note 2}
+\paragraph{Note 2}
 
 This function uses a local persistent variable, \texttt{plotted},
 to store the latest element plotted in the figure in \texttt{PLOT\_WITH\_LINKS}
@@ -1315,254 +1570,6 @@ error exit, in \texttt{exit\_with\_error}, too).\medskip{}
 \medskip{}
 \medskip{}
 
-
-\section{Arm area}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[scale=0.6]{fig5}
-\par\end{centering}
-\caption{Arm area.}
-\end{figure}
-
-On the right of Figure 5, the two component of the position of the
-actuator, \texttt{x} and \texttt{y}, are assigned as first and second
-output in the workspace.
-
-\subsection{ARM subsystem}
-
-\begin{figure}
-\begin{centering}
-\includegraphics[scale=0.6]{fig6}
-\par\end{centering}
-\caption{ARM subsystem.}
-\end{figure}
-
-
-\subsubsection{Actuator position area}
-
-This area outputs the components of the actuator's position, here
-called \texttt{X} and \texttt{Y}, after being computed from the angles
-\texttt{q1} and \texttt{q2} according to the relationships
-\begin{center}
-$x=l_{1}\mathrm{cos}q_{1}+l_{2}\mathrm{cos}(q_{1}+q_{2})$
-\par\end{center}
-
-\begin{center}
-$y=l_{1}\mathrm{sin}q_{1}+l_{2}\mathrm{sin}(q_{1}+q_{2})$
-\par\end{center}
-
-\subsubsection{Initial conditions areas}
-
-The two leftmost areas select the correct initial angles. If \texttt{sw}
-> 0, i.e. the simulation is in an \texttt{OFFLINE} mode, the signals
-\texttt{q1i} and \texttt{q2i}, computed during the simulation in the
-Signal acquisition area, are chosen. Otherwise, the signals \texttt{q1iws}
-and \texttt{q2iws}, computed before the simulation in the workspace,
-are chosen.
-
-\subsubsection{Angles computation}
-
-The remaining areas perform the integration of the derivatives of
-\texttt{q1} and \texttt{q2}, in order to obtain \texttt{q1} and \texttt{q2},
-which are then returned as third and fourth outputs, with names \texttt{Q1}
-and \texttt{Q2}.
-
-The integrators reset to the initial condition signals \texttt{q1\_init}
-and \texttt{q2\_init} when the signal \texttt{RESET} changes sign;
-in the \texttt{OFFLINE} modes this never happens, while in the \texttt{ONLINE}
-mode this happens after the user has started drawing, and \texttt{q1\_init},
-\texttt{q2\_init} have been assigned to the needed initial angles
-by the \texttt{read\_user\_input} function (see 17.1).\medskip{}
-\medskip{}
-\medskip{}
-\medskip{}
-\medskip{}
-
-
-\section{Reference signal acquisition}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[scale=0.65]{fig7}
-\par\end{centering}
-\caption{Reference signal acquisition.}
-\end{figure}
-
-In the downmost zone, the \texttt{ref\_by\_data} GOTO block is assigned
-to the \texttt{n}-th cell of the \texttt{xstar} cell array from the
-workspace. This does it for the signal acquisition problem in the
-\texttt{OFFLINE} modes.
-
-The rest of the area performs the signal acquisition in the \texttt{ONLINE}
-mode. An interpreted MATLAB function, \texttt{read\_cursor\_input}
-(described below) reads the cursor position and other inputs and returns
-the reference signal in a staircase signal form (the two components
-are the first two outputs of the function), as well as other parameters
-that will be discussed below. The two components of the reference
-signal are then multiplexed into the GOTO block \texttt{ref\_by\_hand}.
-
-The sixth output of \texttt{read\_cursor\_input} is both sent as input
-to the \texttt{STOP} block and to the \texttt{ended} GOTO block; the
-latter will be used by other parts of the model, while the first assures
-that the simulation will stop after the end of the current step if
-the sixth output has value 1.
-
-\subsection{MATLAB interpreted function read\_cursor\_input}
-
-\subsubsection{Definition}
-
-\texttt{function out = read\_cursor\_input (in)}
-
-\subsubsection{Output parameters}
-
-The output signal \texttt{out} is a column array of size 6. In \texttt{OFFLINE}
-modes, this function is not used, therefore the outputs always have
-a value of 0. In ONLINE mode, its elements are the following:
-\begin{itemize}
-\item \texttt{xstar}, \texttt{ystar} = zero vector before the user starts
-drawing; the two components of the reference signal, provided by the
-user through the use of the cursor, afterwards.
-\item \texttt{q1i}, \texttt{q2i} = respectively 0 and 4 (arbitrary values)
-before the user starts drawing; the initial angles associated with
-the reference signal drawn by the user after the user has started
-drawing.
-\item \texttt{RESET} = 0 before the user starts drawing, 1 afterwards. The
-change of value of this variable happens the first time that the mouse
-results clicked and the clicked point is inside the drawing area.
-\item \texttt{simulation\_has\_ended} = 0 before the simulation has terminated,
-1 afterwards. The change of value of this variable happens if the
-mouse is not clicked and \texttt{RESET} is equal to 1, i.e. the mouse
-has been released by the user.
-\end{itemize}
-
-\subsubsection{Other outputs}
-
-After the user has started drawing, i.e. when \texttt{RESET > 0},
-the points provided by the user through the cursor are plotted in
-red on the opened simulation figure.
-
-\subsubsection{Throwable custom exceptions}
-
-An exception of id \texttt{caller:FIRST\_POINT\_NOT\_REACHABLE\_ERROR}
-and error string \texttt{First point of the reference signal is not
-reachable.} can be thrown if the first point plotted by the user is
-outside of the reachability space.
-
-\subsubsection{Note}
-
-At implementation time, a convenient way to capture the position of
-the cursor at each instant was seeked. Consider the command \texttt{get(gca,
-'CurrentPoint');}; it returns the cursor's coordinates with respect
-to the current axes, but only returns the last clicked or unclicked
-point, ignoring the points over which the cursor hovered. Oddly enough,
-the command \texttt{get(0, 'PointerLocation');} returns the points
-with respect to the screen coordinates, but at all times, not only
-when the user clicks or unclicks. The second instruction is therefore
-used; however, the obtained point must be converted to the figure/axes
-coordinates, and this is the reason for which the values computed
-by \texttt{compute\_screen\_parameters} are provided as input to \texttt{read\_cursor\_input}.
-The formulas to convert the points were obtained through a simple
-transformation of coordinates.
-
-\begin{figure}[H]
-\begin{centering}
-\texttt{\includegraphics[scale=0.5]{fig8a}}
-\par\end{centering}
-\caption{Geometric meaning of \texttt{dist\_left} and \texttt{dist\_right}.}
-\end{figure}
-
-For instance, consider the x coordinate. Define $L\coloneqq l_{1}+l_{2}$,
-$d_{L}\coloneqq$ \texttt{dist\_left}, $d_{R}\coloneqq$ \texttt{dist\_right},
-$w\coloneqq$\texttt{screen\_width}. To transform the value $x_{s}$
-(relative to screen coordinates) to $x_{a}$ (relative to axes coordinates),
-we need the straight line going through the points ($x_{s}=d_{L}$,
-$x_{a}=-2L$) and ($x_{s}=w-d_{R}$, $x_{a}=2L$), that is, the straight
-line satisfying the equations
-\begin{center}
-$-2L=m_{x}d_{L}+q_{x}$
-\par\end{center}
-
-\begin{center}
-$2L=m_{x}(w-d_{R})+q_{x}$
-\par\end{center}
-
-Solving for $m_{x}$ and $q_{x}$ easily gives $m_{x}=\frac{4L}{w-d_{R}-d_{L}},q_{x}=-2L-\frac{4L}{w-d_{R}-d_{L}}d_{L}$,
-which are the relationships used in the program (rearranged in order
-to avoid multiple computations of $\frac{4L}{w-d_{R}-d_{L}}$). For
-the y coordinate, an analogous procedure (or noticing the simmetry
-of the problem) yields $m_{y}=\frac{4L}{h-d_{D}-d_{U}},q_{y}=-2L-\frac{4L}{h-d_{D}-d_{U}}d_{D}$,
-where $h$ = \texttt{screen\_height}, $d_{D}$ = \texttt{dist\_lower},
-$d_{U}$ = \texttt{dist\_upper}.
-
-\medskip{}
-\medskip{}
-\medskip{}
-\medskip{}
-\medskip{}
-
-
-\section{qdot computation area}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[scale=0.5]{fig8}
-\par\end{centering}
-\caption{qdot computation area.}
-\end{figure}
-
-The \texttt{qdot\_computation} subsystem faithfully implements the
-robot control logic, as seen in the introduction.
-
-In the left zone, the signals provided to the subsystem are selected.
-Detailing, in the uppermost zone the reference signal (in any case
-assigned in the Reference signal acquisition area) is selected based
-on a simple switching on the parameter \texttt{sw}.
-
-In the downmost zone the derivative is selected. If \texttt{sw} >
-0, the n-th element of the workspace cell array \texttt{xstardot}
-is trivially chosen. In the other case, it is more complicated.
-
-For now, ignore the delay block. Before \texttt{RESET} is set to a
-positive value, i.e. before the user has started drawing, a null derivative
-is provided (any finite signal would do, as this part is going to
-be ignored). Roughly after \texttt{RESET} changes sign, a saturated
-version of the derivative of the hand(cursor)-drawn reference signal
-is provided instead.
-
-The saturation allows the simulation not to crash on the user when
-the latter exceeds the maximum speed of the robot (however, the robot
-will proceed at its maximum velocity, forcing the user to slow down).
-Finally, the delay block is necessary because, when the user starts
-drawing, a jump will happen, i.e. the derivative of the cursor-drawn
-signal will be very high. We want the robot to start as still, so
-we provide null derivative for a few more time steps.
-
-\subsection{qdot\_computation subsystem}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[scale=0.6]{fig9}
-\par\end{centering}
-\caption{qdot\_computation subsystem}
-\end{figure}
-
-As pointed out, this subsystem is a faithful implementation of the
-control method already described.
-
-\subsubsection{Interpreted MATLAB function invert\_J}
-
-If inputs \texttt{xstar}, \texttt{ystar}, \texttt{xstardot} and \texttt{ystardot}
-specify a valid signal (that is, not exceeding maximum speed \texttt{vmax}
-and being reachable), the output is the inverse of the Jacobian of
-the system. Otherwise, an exception is thrown, which can be of two
-types:
-\begin{enumerate}
-\item id = \texttt{caller:MAX\_SPEED\_EXCEEDED\_ERROR}, error text = \texttt{Maximum
-speed exceeded.}
-\item id = \texttt{caller:POINT\_NOT\_REACHABLE\_ERROR}, error text = \texttt{Point
-is not reachable.}
-\end{enumerate}
 
 \part{Examples of use}
 

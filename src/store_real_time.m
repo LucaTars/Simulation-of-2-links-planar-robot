@@ -1,7 +1,7 @@
 % Returns toc in modes 2 and 3 (the latter only if user has started to
 % draw), 0 in mode 1.
 
-function [t] = store_toc (in)
+function [t] = store_real_time (in)
 
     starting_time = in(1);
     sw = in(2);
