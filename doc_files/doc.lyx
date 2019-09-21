@@ -4492,7 +4492,7 @@ Definition
 \begin_layout Standard
 
 \family typewriter
-function t = store_toc (in)
+function t = store_real_time (in)
 \end_layout
 
 \begin_layout Subsubsection

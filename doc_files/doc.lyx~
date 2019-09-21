@@ -4630,7 +4630,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename simulink7plot.png
-	scale 60
+	scale 50
 
 \end_inset
 
