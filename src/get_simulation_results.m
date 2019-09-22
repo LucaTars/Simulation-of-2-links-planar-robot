@@ -15,7 +15,13 @@ function [sim_time, q1out, q2out, xout, yout, deltax, deltay] = ...
 
     q1q2_elem1 = q1q2.getElement(1); % used more than once
     
-    nsamples = max(size(q1q2_elem1.Values.Time));
+    if (sw > 0)
+        only_in_online = 0;
+    else
+        only_in_online = 1; % last point is the click on message box
+    end
+    
+    nsamples = max(size(q1q2_elem1.Values.Time)) - only_in_online;
 
     sim_time = q1q2_elem1.Values.Time(1:nsamples); % time column array of the simulation
 

@@ -10,7 +10,7 @@ function [Jinv] = invert_J (in)
     ystar = in(10); xstardot = in(11); ystardot = in(12);
     
     mod = sqrt(xstar^2 + ystar^2);
-        
+    
     % Point not reachable.
     if (~ended && ((sw < 0 && starting_time >= 0) || sw > 0) && (mod >= l1 + l2 || mod <= abs(l1 - l2)))
         exit_with_error('POINT_NOT_REACHABLE_ERROR','Point is not reachable.');
