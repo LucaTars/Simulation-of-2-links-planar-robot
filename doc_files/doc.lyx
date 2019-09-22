@@ -3135,7 +3135,61 @@ tmin
 \family typewriter
 plot_mode
 \family default
- are used in all modes with obvious role.
+ are used in all modes with obvious role, as well as the screen parameters.
+ Other variables with obvious meaning include 
+\family typewriter
+xy
+\family default
+, 
+\family typewriter
+xstar
+\family default
+, 
+\family typewriter
+xstardot
+\family default
+, 
+\family typewriter
+q1
+\family default
+, 
+\family typewriter
+q2
+\family default
+, q, etc.
+\end_layout
+
+\begin_layout Standard
+The variable 
+\family typewriter
+ended
+\family default
+ is computed at every step in the Reference signal acquisition area, and
+ is valued 0 before the simulation has ended, 1 afterwards.
+ Since the non-abnormal end of the simulation is issued as an input of 1
+ to the 
+\family typewriter
+STOP
+\family default
+ block, this parameter can be used by the other areas in the remaining execution
+ of the last step of simulation.
+\end_layout
+
+\begin_layout Standard
+The variables 
+\family typewriter
+q1iws
+\family default
+, 
+\family typewriter
+q2iws
+\family default
+ are the initial angles computed in the workspace (ws = workspace), and
+ are used in 
+\family typewriter
+OFFLINE
+\family default
+ modes only.
 \end_layout
 
 \begin_layout Standard
@@ -3176,22 +3230,6 @@ OFFLINE
 ONLINE
 \family default
  mode, it is valued 0 before the user has started drawing, and 1 afterwards.
-\end_layout
-
-\begin_layout Standard
-The variable 
-\family typewriter
-ended
-\family default
- is computed at every step in the Reference signal acquisition area, and
- is valued 0 before the simulation has ended, 1 afterwards.
- Since the non-abnormal end of the simulation is issued as an input of 1
- to the 
-\family typewriter
-STOP
-\family default
- block, this parameter can be used by the other areas in the remaining execution
- of the last step of simulation.
 \end_layout
 
 \begin_layout Standard
@@ -4122,7 +4160,19 @@ The
 qdot_computation
 \family default
  subsystem faithfully implements the robot control logic seen in the introductio
-n.
+n, with 
+\family typewriter
+K
+\family default
+ = 10
+\begin_inset Formula $\times$
+\end_inset
+
+
+\family typewriter
+I
+\family default
+.
  Internally, it has three areas: the Inversion of J area, the K
 \begin_inset Formula $\times$
 \end_inset

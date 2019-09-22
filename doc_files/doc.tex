@@ -1118,7 +1118,20 @@ to an area of the Simulink model.
 The model uses a set of variables; each one is associated to a GOTO
 block. In particular, \texttt{l1}, \texttt{l2}, \texttt{sw}, \texttt{vmax},
 \texttt{tmin}, \texttt{plot\_mode} are used in all modes with obvious
-role.
+role, as well as the screen parameters. Other variables with obvious
+meaning include \texttt{xy}, \texttt{xstar}, \texttt{xstardot}, \texttt{q1},
+\texttt{q2}, q, etc.
+
+The variable \texttt{ended} is computed at every step in the Reference
+signal acquisition area, and is valued 0 before the simulation has
+ended, 1 afterwards. Since the non-abnormal end of the simulation
+is issued as an input of 1 to the \texttt{STOP} block, this parameter
+can be used by the other areas in the remaining execution of the last
+step of simulation.
+
+The variables \texttt{q1iws}, \texttt{q2iws} are the initial angles
+computed in the workspace (ws = workspace), and are used in \texttt{OFFLINE}
+modes only.
 
 The variable \texttt{starting\_time} is computed at every step in
 the Achievement of initial position area, and holds value \texttt{tmin}
@@ -1130,13 +1143,6 @@ The variable \texttt{reset} is computed at every step in the Reference
 signal acquisition area, and is always valued 0 in \texttt{OFFLINE}
 modes. In \texttt{ONLINE} mode, it is valued 0 before the user has
 started drawing, and 1 afterwards.
-
-The variable \texttt{ended} is computed at every step in the Reference
-signal acquisition area, and is valued 0 before the simulation has
-ended, 1 afterwards. Since the non-abnormal end of the simulation
-is issued as an input of 1 to the \texttt{STOP} block, this parameter
-can be used by the other areas in the remaining execution of the last
-step of simulation.
 
 IMPORTANT: the Simulink model is run from the \texttt{start\_simulation}
 function (through a call to the \texttt{sim} function), and the simulation
@@ -1358,9 +1364,9 @@ we provide null derivative for a few more time steps.
 \end{figure}
 
 The \texttt{qdot\_computation} subsystem faithfully implements the
-robot control logic seen in the introduction. Internally, it has three
-areas: the Inversion of J area, the K$\times$Deltax computation area
-and the Final computation area.
+robot control logic seen in the introduction, with \texttt{K} = 10$\times$\texttt{I}.
+Internally, it has three areas: the Inversion of J area, the K$\times$Deltax
+computation area and the Final computation area.
 
 \begin{figure}[h]
 \begin{centering}
