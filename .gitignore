@@ -2,3 +2,4 @@
 *.slx.autosave
 *.asv
 src/slprj/
+src/tmp/
