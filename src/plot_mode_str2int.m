@@ -7,6 +7,7 @@
 function plot_mode = plot_mode_str2int(plot_mode)
 
     switch plot_mode
+        
         case 'NO_PLOT'
             plot_mode = 0;
         case 'PLOT_NO_LINKS'
@@ -16,5 +17,6 @@ function plot_mode = plot_mode_str2int(plot_mode)
         otherwise
             exit_with_error('PLOT_MODE_ERROR',...
                 'Given plot mode is not valid.');
+            
     end
 end

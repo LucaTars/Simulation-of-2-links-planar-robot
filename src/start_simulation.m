@@ -1,3 +1,7 @@
+% Runs simulation(s).
+% Input = output of start_simulation.
+% Output = simulation signals in column vector format.
+
 function [sim_time, q1out, q2out, xout, yout, deltax, deltay] =...
     start_simulation (sim_struct)
     
@@ -6,16 +10,23 @@ function [sim_time, q1out, q2out, xout, yout, deltax, deltay] =...
         sw = sim_struct.sw; l1 = sim_struct.l1; l2 = sim_struct.l2;
         vmax = sim_struct.vmax; h_step = sim_struct.h_step;
         plot_mode = sim_struct.plot_mode_num;
+        
         if (sw > 0)
+            % Parameters for OFFLINE versions only.
             N = sim_struct.n; tmin = sim_struct.tmin; tmax = sim_struct.tmax;
             q1i_array = sim_struct.q1_initial; q2i_array = sim_struct.q2_initial;
             xstar = {sim_struct.xstar}; xstardot = {sim_struct.xstardot};
         end
-    catch err % if sim_struct has wrong type
+    catch err
+        
+        % If sim_struct has wrong type.
         if (strcmp(err.identifier,'MATLAB:nonExistentField') || strcmp(err.identifier,'MATLAB:structRefFromNonStruct'))
            exit_with_error('INVALID_STRUCT_ERROR',...
            'The argument sim_struct lacks at least one requested field.');
         end
+        
+        % Otherwise, it is an unhandled exception.
+        retrow(err);
     end
 
     % Protect against unmistakenly wrong inputs.
@@ -30,14 +41,13 @@ function [sim_time, q1out, q2out, xout, yout, deltax, deltay] =...
                 'At least one invalid simulation parameter.');
         end
     end
-            
     
     no_more_simulations_needed = 0;
-    
     BIG_CONST = 922337203685477572; % around the maximum number of loops
                                     % possible for MATLAB
     
     if (sw > 0 && ~ishandle(1) && plot_mode)
+        
         % If offline mode AND figure has been deleted AND must plot,
         % re-open the figure.
         open_figure(sw,l1,l2);
@@ -74,12 +84,15 @@ function [sim_time, q1out, q2out, xout, yout, deltax, deltay] =...
             % requires them to be defined
             
             if (n == 1)
+                
                 % Compute screen parameters.
                 [screen_width, screen_height, dist_left, dist_lower,...
                     dist_right, dist_upper] =...
                     compute_screen_parameters(open_figure(sw,l1,l2)); %#ok<*ASGLU>
             end
         end
+        
+        calllib('user32','GetAsyncKeyState',int32(1));
         
         % Run simulation.
         SO = sim('schema','StartTime','current_tmin','StopTime',...

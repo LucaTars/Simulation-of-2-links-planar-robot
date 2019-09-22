@@ -43,16 +43,16 @@ function out = read_cursor_input (in)
         
         % If key is pressed, xstar and ystar will be assigned
         Q = get(0, 'PointerLocation'); % get coordinate w.r. to screen coordinates
+        
         if (Q(1,2) < screen_height - dist_upper && Q(1,2) > dist_lower && Q(1,1) > dist_left && Q(1,1) < screen_width - dist_right)
                       
             % If it is the drawing area, convert to figure coordinate.
             xstar = 2*tot_length / (screen_width - dist_right - dist_left) * (- dist_left + Q(1,1)) - tot_length;
-            
             ystar = 2*tot_length / (screen_height - dist_upper - dist_lower) * (- dist_lower + Q(1,2)) - tot_length;
-        
             plot(xstar,ystar,'.-','Color','red');
         
             if (reset == 0)
+                
                 % User has started drawing => set reset to 1.
                 reset = 1;
                 
@@ -62,6 +62,7 @@ function out = read_cursor_input (in)
                     exit_with_error('FIRST_POINT_NOT_REACHABLE_ERROR',...
                         'First point of the reference signal is not reachable.');
                 else
+                    
                     % Compute initial angles (from problem geometry).
                     [q1i, q2i] = pos2angle(xstar, ystar, l1, l2);
                 end

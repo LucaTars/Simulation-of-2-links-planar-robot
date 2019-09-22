@@ -28,23 +28,31 @@ function [xstar, xstardot, q1_initial, q2_initial]...
     
     % Signal in final format.
     try
-       xstar = [t', xs', ys'];     % columns
+        xstar = [t', xs', ys'];     % columns
     catch err
-       if (sw == 1 && strcmp(err.identifier,'MATLAB:catenate:dimensionMismatch'))
-           exit_with_error('INVALID_INPUT_SIZE_ERROR',...
-           'At least one component of the given reference signal has invalid dimension. Each component must be a row vector with floor((tmax-tmin)/h)+1 columns.');
-       end
+        
+        % xs or ys have wrong dimensions.
+        if (sw == 1 && strcmp(err.identifier,'MATLAB:catenate:dimensionMismatch'))
+            exit_with_error('INVALID_INPUT_SIZE_ERROR',...
+                'At least one component of the given reference signal has invalid dimension. Each component must be a row vector with floor((tmax-tmin)/h)+1 columns.');
+        end
+        
+        % Otherwise, it is an unhandled exceptions.
+        rethrow(err);
     end
     
     % Differentiation.
     xsd = diff(xs)/h_step;      % rows
     ysd = diff(ys)/h_step;      % rows
     
-    % Compute derivatives in tmax with a backward formula.
     if (ts > 1)
+        
+        % Compute derivatives in tmax with a backward formula.
         xsd(1,ts) = (xs(1,ts)-xs(1,ts-1))/h_step;
         ysd(1,ts) = (ys(1,ts)-ys(1,ts-1))/h_step;
-    else % it is a single point
+    else
+        
+        % It is a single point => derivative is zero.
         xsd(1,ts) = 0;
         ysd(1,ts) = 0;
     end

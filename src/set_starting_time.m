@@ -25,6 +25,7 @@ function starting_time = set_starting_time(in)
         % In ONLINE mode.
         % The arm has catched up to the initial conditions; nothing has
         % been drawn yet.
+        
         starting_time_value = clock; % clock is non-negative
         tic; % start timer
     end

@@ -16,13 +16,15 @@ function [screen_width, screen_height, dist_left, dist_lower,...
         f.Units = 'pixels';
         f_pos = f.Position;
     catch err
+        
         % If user has closed the figure.
         if (strcmp('MATLAB:class:InvalidHandle',err.identifier))
             exit_with_error('DELETED_FIGURE_ERROR',...
                 'The figure (drawing area) must not be closed manually before the end of the running process.');
-        else
-            rethrow(err);
         end
+        
+        % Otherwise, it is an unhandled exceptions.
+        rethrow(err);
     end
 
     % Save axes information.

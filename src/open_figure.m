@@ -22,8 +22,11 @@ function f = open_figure(sw, l1, l2)
     ax = gca;
     ax.Units = 'pixels';
     
-    % Plot delimiting circles.
+    % Plot delimiting external circle.
     rectangle('Position',(l1 + l2)*[-1,-1,2,2],'Curvature',[1, 1],'EdgeColor','black');
+    
+    % Plot delimiting internal circle, only if links have different
+    % lengths.
     if (l1 ~= l2)
         rectangle('Position',abs(l1 - l2)*[-1,-1,2,2],'Curvature',[1, 1],'EdgeColor','black');
     end

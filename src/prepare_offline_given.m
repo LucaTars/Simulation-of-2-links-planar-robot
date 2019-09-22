@@ -19,6 +19,7 @@ function [n, q1_initial, q2_initial, xstar, xstardot, sw] =...
     [xstar{1}, xstardot{1}, q1_initial, q2_initial] = get_signals(h_step, tmin, tmax, xs, ys, l1, l2, sw);
 
     if (plot_mode > 0)
+        
         % If everything is correct and user wants plots, open the figure.
         open_figure(sw,l1,l2);
         

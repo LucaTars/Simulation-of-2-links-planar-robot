@@ -13,8 +13,8 @@ function plot_robot_position(in)
         % If must plot but figure has been deleted.
         if not (ended)
             
-            if (not (clock == 0)) % if the figure wasn't deleted
-                                  % between preparation and simulation
+            % If clock = 0, the simulation has just started.
+            if (not (clock == 0))
                 warning('It is recommended not to close the figure during the simulation.');
             end
             
@@ -43,21 +43,27 @@ function plot_robot_position(in)
     % If user has started drawing, plot the robot's position.
     if (not (ended) && sw == -1 && starting_time >= 0 || sw > 0)
         
-        % When drawing arm, delete the previously drawn one.
+        % When drawing links, delete the previously drawn ones.
+        % Note that plotted is always empty in plot_mode = 0, 1.
         if not (isempty(plotted))
            delete(plotted);
         end
         
-        if (plot_mode == 1) % don't plot arm
+        % Don't plot links.
+        if (plot_mode == 1)
             if (clock == starting_time || xprev == x && yprev == y)
+                
                 % If previous point and current point are equal, draw a dot.
                 plot(x,y,'.-','Color','b');
             else
+                
                 % If previous point and current point are different, draw a
                 % line between them.
                 line([xprev x],[yprev y],'Color','b','LineWidth',3);
             end
-        else % plot_mode == 2, i.e. draw the arm
+        else
+            
+            % Plot mode = 2 (= plot links).
             px1 = l1 * cos(q1);
             px2 = px1 + l2 * cos(q1 + q2);
             py1 = l1 * sin(q1);

@@ -14,7 +14,6 @@ function [n, q1_initial, q2_initial, tmin, tmax, xstar, xstardot, sw] = prepare_
     open_figure(sw,l1,l2);
             
     % Pre-condition: finish = false.
-    
     while not (finish)
         
         % At each loop increment the number of simulations.
@@ -30,14 +29,18 @@ function [n, q1_initial, q2_initial, tmin, tmax, xstar, xstardot, sw] = prepare_
             xspos = xstarIFH.Position;
         
         catch err
+            
             % If user closed the figure.
             if (strcmp('MATLAB:class:InvalidHandle',err.identifier))
                 exit_with_error('DELETED_FIGURE_ERROR',...
                     'The figure (drawing area) must not be closed manually before the end of the running process.');
             end
+            
+            % Otherwise, it is an unhandled exceptions.
+            rethrow(err);
         end
         
-        h_step2 = 0.01;
+        h_step2 = 0.1;
         
         % Assign time variables for the latest drawn signal.
         ts = max(size(xspos(:,1)));

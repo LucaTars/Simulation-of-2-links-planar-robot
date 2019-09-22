@@ -36,6 +36,7 @@ function sim_struct = prepare_simulation (mode, plot_mode, vmax, l1, l2, h_step,
                 prepare_offline_manual(l1,l2);
             
       case 'ONLINE'
+          
             % Load dll file for mouse position.
             if (plot_mode == 0)
                 exit_with_error('MODE_ERROR','Mode and plot mode are not compatible.');
@@ -45,9 +46,6 @@ function sim_struct = prepare_simulation (mode, plot_mode, vmax, l1, l2, h_step,
                  loadlibrary('user32.dll','user32.h');
             end
             
-            % The following call is necessary because otherwise for some
-            % reasons some click is still lying around after the simulation
-            % starts and ruins the hand drawing process.
             calllib('user32','GetAsyncKeyState',int32(1));
             
             n = 0; sw = -1;
@@ -57,6 +55,7 @@ function sim_struct = prepare_simulation (mode, plot_mode, vmax, l1, l2, h_step,
     end
     
     for ii = 1:n
+        
         % Check if first point is unreachable.
         mod = sqrt(xstar{ii}(1,2)^2 + xstar{ii}(1,3)^2);
         

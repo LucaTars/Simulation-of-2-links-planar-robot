@@ -19,10 +19,14 @@ function [sim_time, q1out, q2out, xout, yout, deltax, deltay] = ...
 
     sim_time = q1q2_elem1.Values.Time(1:nsamples); % time column array of the simulation
 
-    if (sw < 0) % in online mode, the signal is to be considered after initial conditions are reached
+    if (sw < 0)
+        
+        % In online mode, the signal is to be considered after initial conditions are reached
         starting_time = max(outs.getElement(5).Values.Data);
         first_time_index = find(sim_time >= starting_time, 1);
-    else % in other modes, consider all elements
+    else
+        
+        % In other modes, consider all elements
         first_time_index = 1;
     end
 
