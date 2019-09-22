@@ -5192,7 +5192,7 @@ Example 3
 \begin_layout Standard
 
 \family typewriter
-sim_struct = prepare_simulation('ONLINE', 'PLOT_NO_ARM', 1, 1, 0.8, 0.00001);
+sim_struct = prepare_simulation('ONLINE', 'PLOT_NO_LINKS', 1, 1, 0.8, 0.00001);
 \end_layout
 
 \begin_layout Standard

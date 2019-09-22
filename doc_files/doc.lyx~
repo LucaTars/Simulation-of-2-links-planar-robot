@@ -691,14 +691,6 @@ The first 4 ones are the input parameters of
 prepare_simulation
 \family default
  with the same name.
- Only in mode 2, vmax has not its original value, but has been multiplied
- by a scalar factor in order to take into account the difference between
- the simulation step 
-\family typewriter
-h_step
-\family default
- and the real step (i.e.
- the time interval between the reading of two consecutive points).
 \end_layout
 
 \begin_layout Itemize
