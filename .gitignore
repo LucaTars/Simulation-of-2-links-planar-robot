@@ -1,3 +1,4 @@
 *.slxc
-*.autosave
+*.slx.autosave
+*.asv
 src/slprj/

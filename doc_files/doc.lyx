@@ -3296,10 +3296,6 @@ sw
 \family typewriter
 current_tmin
 \family default
-, 
-\family typewriter
-vmax
-\family default
  and all the screen parameters) from the workspace are assigned to a 
 \family typewriter
 GOTO
@@ -3373,8 +3369,8 @@ The
 \family typewriter
 ref_acquisition 
 \family default
-subsystem is composed of two areas: the Online reference processing area
- and the Choice of Reference area.
+subsystem is composed of three areas: the Online reference processing area,
+ the Choice of Reference area and the vmax computation area.
 \end_layout
 
 \begin_layout Subsection
@@ -3532,6 +3528,23 @@ RESET
 \family default
  is equal to 1, i.e.
  the mouse has been released by the user.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+real_step
+\family default
+ = 0 in 
+\family typewriter
+OFFLINE
+\family default
+ modes; in 
+\family typewriter
+ONLINE
+\family default
+ mode, it is equal to the difference of the time at which the latest point
+ was drawn and the time at which the previous point was drawn.
 \end_layout
 
 \begin_layout Paragraph
@@ -3874,6 +3887,94 @@ n
 xstar
 \family default
  (workspace variable) is assigned instead.
+\end_layout
+
+\begin_layout Subsection
+vmax computation area
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename simulink2refac_vmax.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+vmax computation area.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In 
+\family typewriter
+OFFLINE
+\family default
+ modes, vmax is simply imported from the workspace.
+\end_layout
+
+\begin_layout Standard
+In 
+\family typewriter
+ONLINE
+\family default
+ mode, it is multiplied by the positive quantity 
+\family typewriter
+real_step/h_step
+\family default
+.
+ This is because the internal clock of the simulation is 
+\family typewriter
+h_step
+\family default
+, but the actual step time at each simulation pass 
+\family typewriter
+real_step
+\family default
+.
+ (usually 
+\family typewriter
+h_step < real_step
+\family default
+).
+ The maximum speed in m/s is 
+\family typewriter
+vmax
+\family default
+; if one simulation step corresponded with one real second, we'd simply
+ have to divide by 
+\family typewriter
+h_step
+\family default
+; however, one simulation step corresponds to one real step, i.e.
+ it contains 
+\family typewriter
+real_step
+\family default
+ seconds.
 \end_layout
 
 \begin_layout Standard
@@ -4625,7 +4726,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename simulink7plot.png
-	scale 50
+	scale 60
 
 \end_inset
 

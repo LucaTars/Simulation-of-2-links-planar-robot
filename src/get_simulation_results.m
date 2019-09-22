@@ -39,6 +39,5 @@ function [sim_time, q1out, q2out, xout, yout, deltax, deltay] = ...
     yout = outs.getElement(2).Values.Data(first_time_index:nsamples);
     deltax = outs.getElement(3).Values.Data(first_time_index:nsamples);
     deltay = outs.getElement(4).Values.Data(first_time_index:nsamples);
-    
 
 end

@@ -124,8 +124,9 @@ the Simulink model documentation.
 \item The simulator can be further developed, for example by creating a
 complete user interface, detailing the actuator's state (by attaching
 a frame of reference to it), associating a SimScape model to the Simulink
-scheme and many other things. Because of time constraints, it was
-decided to omit these features for now.
+scheme, considering situations with noise, and many other things.
+Because of time constraints, it was decided to omit these features
+for now.
 \end{enumerate}
 
 \subsection{Conventions used in this report}
@@ -1157,13 +1158,11 @@ step. This WILL cause confusion, so be careful.
 \end{figure}
 
 In this area several parameters (\texttt{l1}, \texttt{l2}, \texttt{q1ws},
-\texttt{q2ws}, \texttt{clock}, \texttt{plot\_mode}, \texttt{sw}, \texttt{current\_tmin},
-\texttt{vmax} and all the screen parameters) from the workspace are
-assigned to a \texttt{GOTO} block. This way, if one or moreof those
-parameters get their name changed in a future development of the software,
-the model has to be changed in one place only. Observe that \texttt{vmax}
-is multiplied by a scaling gain, different from 1 only in modes 2
-and 3.
+\texttt{q2ws}, \texttt{clock}, \texttt{plot\_mode}, \texttt{sw}, \texttt{current\_tmin}
+and all the screen parameters) from the workspace are assigned to
+a \texttt{GOTO} block. This way, if one or moreof those parameters
+get their name changed in a future development of the software, the
+model has to be changed in one place only.
 
 \medskip{}
 \medskip{}
@@ -1180,8 +1179,9 @@ and 3.
 \caption{Reference signal acquisition.}
 \end{figure}
 
-The \texttt{ref\_acquisition }subsystem is composed of two areas:
-the Online reference processing area and the Choice of Reference area.
+The \texttt{ref\_acquisition }subsystem is composed of three areas:
+the Online reference processing area, the Choice of Reference area
+and the vmax computation area.
 
 \subsection{Online reference processing area}
 
@@ -1223,6 +1223,9 @@ results clicked and the clicked point is inside the drawing area.
 The change of value of this variable happens if the mouse is not clicked
 and \texttt{RESET} is equal to 1, i.e. the mouse has been released
 by the user.
+\item \texttt{real\_step} = 0 in \texttt{OFFLINE} modes; in \texttt{ONLINE}
+mode, it is equal to the difference of the time at which the latest
+point was drawn and the time at which the previous point was drawn.
 \end{itemize}
 
 \paragraph{Other outputs}
@@ -1290,6 +1293,26 @@ In \texttt{ONLINE} mode, this area assigns the \texttt{ref\_by\_hand
 }signal (the cursor input) to \texttt{xstar}; in \texttt{OFFLINE}
 modes, the \texttt{n}-th cell of \texttt{xstar} (workspace variable)
 is assigned instead.
+
+\subsection{vmax computation area}
+
+\begin{figure}[H]
+\begin{centering}
+\includegraphics[scale=0.6]{simulink2refac_vmax}
+\par\end{centering}
+\caption{vmax computation area.}
+\end{figure}
+
+In \texttt{OFFLINE} modes, vmax is simply imported from the workspace.
+
+In \texttt{ONLINE} mode, it is multiplied by the positive quantity
+\texttt{real\_step/h\_step}. This is because the internal clock of
+the simulation is \texttt{h\_step}, but the actual step time at each
+simulation pass \texttt{real\_step}. (usually \texttt{h\_step < real\_step}).
+The maximum speed in m/s is \texttt{vmax}; if one simulation step
+corresponded with one real second, we'd simply have to divide by \texttt{h\_step};
+however, one simulation step corresponds to one real step, i.e. it
+contains \texttt{real\_step} seconds.
 
 \medskip{}
 \medskip{}
@@ -1495,7 +1518,7 @@ can't be executed until then, and 0 will be returned instead.
 \begin{center}
 \begin{figure}[H]
 \begin{centering}
-\includegraphics[scale=0.5]{simulink7plot}
+\includegraphics[scale=0.6]{simulink7plot}
 \par\end{centering}
 \caption{Plot area.}
 \end{figure}
@@ -1563,8 +1586,8 @@ contain the latest links configuration of the previous simulation,
 and will be automatically erased.
 
 Note that the command \texttt{clear plot\_robot\_position} must be
-issued before \texttt{start\_simulation} returns (and, in case of
-error exit, in \texttt{exit\_with\_error}, too).\medskip{}
+issued before \texttt{start\_simulation} returns (and, to cover the
+case of error exit, in \texttt{exit\_with\_error}, too).\medskip{}
 \medskip{}
 \medskip{}
 \medskip{}

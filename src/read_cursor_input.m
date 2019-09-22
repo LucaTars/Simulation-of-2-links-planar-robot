@@ -13,13 +13,13 @@ function out = read_cursor_input (in)
     persistent simulation_has_ended;
     persistent timer;
     
-    out = [0; 0; 0; 4; 0; 0]; % for first pass or offline mode
+    out = [0; 0; 0; 4; 0; 0; 0]; % for first pass or offline mode
 
     sw = in(9);
     clock = in(10);
     
     if (sw > 0) % if not offline mode
-        out = [0; 0; 0; 0; 0; 0]; % arbitrary values: they are not used
+        out = [0; 0; 0; 0; 0; 0; 0]; % arbitrary values: they are not used
         return;
     end
     
@@ -28,6 +28,9 @@ function out = read_cursor_input (in)
         reset = 0;
         q1i = 0; q2i = 4; % arbitrary with q1i ~= q2i + k*pi, k integer
         simulation_has_ended = 0;
+        real_step = 0;
+    else
+        real_step = toc(timer);
     end
     
     % The following assignments allow to edit the program easily in the
@@ -35,15 +38,13 @@ function out = read_cursor_input (in)
     l1 = in(1); l2 = in(2); screen_width = in(3); screen_height = in(4);
     dist_left = in(5); dist_lower = in(6); dist_right = in(7);
     dist_upper = in(8); tot_length = l1 + l2;
-    
+    timer = tic;
     if (calllib('user32','GetAsyncKeyState',int32(1)))
-        
-        timer = tic;
         
         % If key is pressed, xstar and ystar will be assigned
         Q = get(0, 'PointerLocation'); % get coordinate w.r. to screen coordinates
         if (Q(1,2) < screen_height - dist_upper && Q(1,2) > dist_lower && Q(1,1) > dist_left && Q(1,1) < screen_width - dist_right)
-          
+                      
             % If it is the drawing area, convert to figure coordinate.
             xstar = 2*tot_length / (screen_width - dist_right - dist_left) * (- dist_left + Q(1,1)) - tot_length;
             
@@ -90,5 +91,5 @@ function out = read_cursor_input (in)
     
     out(1) = xstar; out(2) = ystar;
     out(3) = q1i; out(4) = q2i; out(5) = reset;
-    out(6) = simulation_has_ended;
+    out(6) = simulation_has_ended; out(7) = real_step;
 end
